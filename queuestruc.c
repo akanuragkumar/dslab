@@ -1,95 +1,81 @@
-#include<stdio.h>
-#include<stdlib.h>
-/*Queue has five properties. capacity stands for the maximum number of elements Queue can hold.
-  Size stands for the current size of the Queue and elements is the array of elements. front is the
- index of first element (the index at which we remove the element) and rear is the index of last element
- (the index at which we insert the element) */
-typedef struct Queue
+/*
+ * C Program to Implement a Queue using an Array
+ */
+#include <stdio.h>
+ 
+#define MAX 50
+int queue_array[MAX];
+int rear = - 1;
+int front = - 1;
+main()
 {
-        int capacity;
-        int size;
-        int front;
-        int rear;
-        int *elements;
-}Queue;
-/* crateQueue function takes argument the maximum number of elements the Queue can hold, creates
-   a Queue according to it and returns a pointer to the Queue. */
-Queue * createQueue(int maxElements)
-{
-        /* Create a Queue */
-        Queue *Q;
-        Q = (Queue *)malloc(sizeof(Queue));
-        /* Initialise its properties */
-        Q->elements = (int *)malloc(sizeof(int)*maxElements);
-        Q->size = 0;
-        Q->capacity = maxElements;
-        Q->front = 0;
-        Q->rear = -1;
-        /* Return the pointer */
-        return Q;
-}
-void Dequeue(Queue *Q)
-{
-        /* If Queue size is zero then it is empty. So we cannot pop */
-        if(Q->size==0)
+    int choice;
+    while (1)
+    {
+        printf("1.Insert element to queue \n");
+        printf("2.Delete element from queue \n");
+        printf("3.Display all elements of queue \n");
+        printf("4.Quit \n");
+        printf("Enter your choice : ");
+        scanf("%d", &choice);
+        switch (choice)
         {
-                printf("Queue is Empty\n");
-                return;
-        }
-        /* Removing an element is equivalent to incrementing index of front by one */
-        else
-        {
-                Q->size--;
-                Q->front++;
-                /* As we fill elements in circular fashion */
-                if(Q->front==Q->capacity)
-                {
-                        Q->front=0;
-                }
-        }
-        return;
-}
-int front(Queue *Q)
+            case 1:
+            insert();
+            break;
+            case 2:
+            delete();
+            break;
+            case 3:
+            display();
+            break;
+            case 4:
+            exit(1);
+            default:
+            printf("Wrong choice \n");
+        } /*End of switch*/
+    } /*End of while*/
+} /*End of main()*/
+insert()
 {
-        if(Q->size==0)
-        {
-                printf("Queue is Empty\n");
-                exit(0);
-        }
-        /* Return the element which is at the front*/
-        return Q->elements[Q->front];
-}
-void Enqueue(Queue *Q,int element)
+    int add_item;
+    if (rear == MAX - 1)
+    printf("Queue Overflow \n");
+    else
+    {
+        if (front == - 1)
+        /*If queue is initially empty */
+        front = 0;
+        printf("Inset the element in queue : ");
+        scanf("%d", &add_item);
+        rear = rear + 1;
+        queue_array[rear] = add_item;
+    }
+} /*End of insert()*/
+ 
+delete()
 {
-        /* If the Queue is full, we cannot push an element into it as there is no space for it.*/
-        if(Q->size == Q->capacity)
-        {
-                printf("Queue is Full\n");
-        }
-        else
-        {
-                Q->size++;
-                Q->rear = Q->rear + 1;
-                /* As we fill the queue in circular fashion */
-                if(Q->rear == Q->capacity)
-                {
-                        Q->rear = 0;
-                }
-                /* Insert the element in its rear side */ 
-                Q->elements[Q->rear] = element;
-        }
-        return;
-}
-int main()
+    if (front == - 1 || front > rear)
+    {
+        printf("Queue Underflow \n");
+        return ;
+    }
+    else
+    {
+        printf("Element deleted from queue is : %d\n", queue_array[front]);
+        front = front + 1;
+    }
+} /*End of delete() */
+display()
 {
-        Queue *Q = createQueue(5);
-        Enqueue(Q,1);
-        Enqueue(Q,2);
-        Enqueue(Q,3);
-        Enqueue(Q,4);
-        printf("Front element is %d\n",front(Q));
-        Enqueue(Q,5);
-        Dequeue(Q);
-        Enqueue(Q,6);
-        printf("Front element is %d\n",front(Q));
-}
+    int i;
+    if (front == - 1)
+        printf("Queue is empty \n");
+    else
+    {
+        printf("Queue is : \n");
+        for (i = front; i <= rear; i++)
+            printf("%d ", queue_array[i]);
+        printf("\n");
+    }
+} /*End of display() */
