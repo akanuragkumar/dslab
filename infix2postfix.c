@@ -1,142 +1,60 @@
-
-#include<stdio.h>
-#include<conio.h>
-#include<ctype.h>
-#define MAX 100
-
-typedef struct stack
-{
- int data[MAX];
- int top;
-}stack;
-
-int priority(char);
-void init(stack *);
-int empty(stack *);
-int full(stack *);
-char pop(stack *);
-void push(stack *,char);
-char top(stack *);
-
-void main()
-{
-stack s;
-char x;
-int token;
-init(&s);
-clrscr();
-printf("nEnter infix expression:");
-  while((token=getchar())!='n')
-  {
-    if(isalnum(token))
-       printf("%c",token);
-    else
-       if(token == '(')
-           push(&s,'(');
-       else
-       {
-         if(token == ')')
-             while((x=pop(&s))!='(')
-             printf("%c",x);
-         else
-         {
-         while(priority(token)< =priority(top(&s)) && !empty(&s))
-             {
-             x=pop(&s);
-             printf("%c",x);
-             }
-         push(&s,token);
-         }
-       }
-  }
-  while(!empty(&s))
+#define SIZE 50            /* Size of Stack */
+#include <ctype.h>
+char s[SIZE];
+int top=-1;       /* Global declarations */
+ 
+push(char elem)
+{                       /* Function for PUSH operation */
+    s[++top]=elem;
+}
+ 
+char pop()
+{                      /* Function for POP operation */
+    return(s[top--]);
+}
+ 
+int pr(char elem)
+{                 /* Function for precedence */
+    switch(elem)
     {
-    x=pop(&s);
-    printf("%c",x);
+    case '#': return 0;
+    case '(': return 1;
+    case '+':
+    case '-': return 2;
+    case '*':
+    case '/': return 3;
     }
-getch();
 }
-//---------------------------------------------
-int priority(char x)
-{
-   if(x == '(')
- return(0);
-   if(x == '+' || x == '-')
- return(1);
-   if(x == '*' || x == '/' || x == '%')
- return(2);
-   return(3);
-}
-//---------------------------------------------
-void init(stack *s)
-{
-   s->top=-1;
-}
-//---------------------------------------------
-int empty(stack *s)
-{
-    if(s->top==-1)
- return(1);
-    else 
- return(0);
-}
-//---------------------------------------------
-int full(stack *s)
-{
-    if(s->top==MAX-1)
- return(1);
-    else 
- return(0);
-}
-//---------------------------------------------
-void push(stack *s,char x)
-{
-  s->top=s->top+1;
-  s->data[s->top]=x;
-}
-//---------------------------------------------
-char pop(stack *s)
-{
-   int x;
-   x=s->data[s->top];
-   s->top=s->top-1;
-   return(x);
-}
-//---------------------------------------------
-char top(stack * s)
-{
-   return(s->data[s->top]);
+ 
+main()
+{                         /* Main Program */
+    char infx[50],pofx[50],ch,elem;
+    int i=0,k=0;
+    printf("\n\nRead the Infix Expression ? ");
+    scanf("%s",infx);
+    push('#');
+    while( (ch=infx[i++]) != '\0')
+    {
+        if( ch == '(') push(ch);
+        else
+            if(isalnum(ch)) pofx[k++]=ch;
+            else
+                if( ch == ')')
+                {
+                    while( s[top] != '(')
+                        pofx[k++]=pop();
+                    elem=pop(); /* Remove ( */
+                }
+                else
+                {       /* Operator */
+                    while( pr(s[top]) >= pr(ch) )
+                        pofx[k++]=pop();
+                    push(ch);
+                }
+    }
+    while( s[top] != '#')     /* Pop from stack till empty */
+        pofx[k++]=pop();
+    pofx[k]='\0';          /* Make pofx as valid string */
+    printf("\n\nGiven Infix Expn: %s  Postfix Expn: %s\n",infx,pofx);
 }
 
-
-
-
-
-
-
-
-explanation
-while((token=getchar())!='n')
-Accepts Expression Character by Character Till Entered Character is ‘n’
-After Accepting Single Character do all actions inside while loop.
-if(isalnum(token))
- printf("%c",token);
-isalnum(token)   checks whether entered Character is Alphabetic or Numeric .
-If Entered Character is alpha-numeric then Directly Display it – for more help [Algo] + [Example]
-If Entered Character is Opening Bracket then Push Element Onto Stack
-if(token == '(')
-     push(&s,'(');
-If Entered Character is ‘Closing Bracket’ then Pop All Elements till Equivalent Opening Bracket is poped.
-if(token == ')')
-     while((x=pop(&s))!='(')
-  printf("%c",x);
-If Entered Character is Operator then – do
-else
-   {
-   while(priority(token)< =priority(top(&s)) && !empty(&s))
-     {
-     x=pop(&s);
-     printf("%c",x);
-     }
-   push(&s,token);
-   }
