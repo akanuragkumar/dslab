@@ -1,181 +1,159 @@
 #include<stdio.h>
 #include<stdlib.h>
-struct dll
-{
-int data;
-struct dll * rlink;
-struct dll * llink;
+
+struct node{
+	int info;
+	struct node *lLink;
+	struct node *rLink;
 };
-typedef struct dll * NODE;
-NODE getnode();
-void freenode(NODE);
-NODE ins_f(NODE,int);
-NODE del_f(NODE,int *);
-NODE ins_r(NODE,int);
-NODE del_r(NODE,int *);
-void search(NODE,int);
-void disp(NODE);
-NODE getnode()
-{
-NODE tmp;
-tmp = (NODE)malloc(sizeof(struct dll));
-if(tmp == NULL)
-{
-printf("Out of memory\n");
-exit(0);
+
+typedef struct node NODE;
+
+NODE* getNode(){
+	return ((NODE*)malloc(sizeof(NODE)));
 }
-return tmp;
+
+//adding each node in the front
+
+NODE* insertFront(NODE *first,int item){
+	NODE *temp = getNode();
+	temp->info = item;
+	if(first == NULL){
+		temp->lLink = NULL;
+		temp->rLink = NULL;
+		return temp;
+	}
+	temp->lLink = NULL;
+	temp->rLink = first;
+	first->lLink = temp;
+	return temp;
 }
-void freenode(NODE p)
-{
-free(p);
+
+
+//insert new node to the left of the ode whose key is read as input
+NODE* insertKey(NODE *first,int key,int item){
+	NODE *temp,*trav;
+	if(first == NULL){
+		printf("Element not found as list is empty.\n");
+		return first;
+	}
+	if(first->info == key){
+		temp = getNode();
+		temp->info = item;
+		temp->lLink = NULL;
+		temp->rLink = first;
+		first->lLink = temp;
+		return temp;
+	}
+
+	trav = first;
+	while(trav!= NULL){
+		if(trav->info==key){
+			temp = getNode();
+			temp->info = item;
+			(trav->lLink)->rLink = temp;
+			temp->lLink = trav->lLink;
+			temp->rLink = trav;
+			trav->lLink = temp;
+			return first;
+		}
+		trav = trav->rLink;
+	}
+	printf("Element not found.\n");
+	return first;
 }
-void main()
-{
-int p,ch,x,y=0;
-NODE head;
-head= NULL;
-while(1)
-{
-printf("\n1. Insert front 2. Delete front 3. Insert rear 4. Delete rear 5. Display 6. Search 7. Exit \n");
-printf("Enter ur choice:");
-scanf("%d",&ch);
-switch(ch)
-{
-case 1: printf("Enter element to be inserted:");scanf("%d",&x);
-head = ins_f(head,x);
-break;
-case 2: head = del_f(head,&y);
-if(y!=-1)
-printf("deleted item is %d\n",y);
-break;
-case 3: printf("Enter element to be inserted:");
-scanf("%d",&x);
-head = ins_r(head,x);
-break;
-case 4: head = del_r(head,&y);
-if(y!=-1)
-printf("deleted item is %d\n",y);
-break;
-case 5: disp(head);
-break;
-case 6: printf("Enter element to be searched:");
-scanf("%d",&x);
-search(head,x);
-break;
-case 7: exit(0);
-default: printf("Invalid choice\n");
+
+NODE* getlast(NODE *first){
+	NODE *a;
+	a = first;
+	while (a->rLink!=NULL){
+		a = a->rLink;
+	}
+	return a;
 }
+
+//delete the node node of a given data
+NODE* del(NODE *first,NODE *last,int key){
+	NODE *temp;
+	//list is empty
+	if(first==NULL){
+		printf("Empty.\n");
+		return first;
+	}
+	//first element is to be deleted
+	if(first->info==key){
+		temp=first->rLink;
+		free(first);
+		return temp;
+	}
+
+	//last element is to be deleted
+	if(last->info==key){
+		temp = last->lLink;
+		free(last);
+		last = temp;
+		return first;
+	}
+
+	//node to be deleted is somewhere in  the middle or does not exist
+	temp = first->rLink;
+	while(temp!=last){
+		if(temp->info == key){
+			(temp->lLink)->rLink = temp->rLink;
+			(temp->rLink)->lLink = temp->lLink;
+			free(temp);
+			return first;			
+		}		
+		temp = temp->rLink;
+	}
+	//element not found
+	printf("Element not found.\n");
+	return first;
 }
+//display contents of the list
+void display(NODE *first){
+	NODE *temp;
+	if(first==NULL){
+		printf("Empty.\n");
+		return;
+	}
+	temp = first;
+	while(temp != NULL){
+		printf("%d\n",temp->info);
+		temp=temp->rLink;
+	}
 }
-NODE ins_f(NODE head, int x)
-{
-NODE tmp;
-tmp = getnode();
-tmp->data = x;
-tmp->llink = NULL;
-if(head == NULL)
-{
-tmp->rlink = NULL; // inserting first node
-return tmp;
-}
-tmp->rlink = head;
-head->llink = tmp;
-head = tmp;
-return head;
-}
-NODE del_f(NODE head, int * val)
-{
-NODE tmp;
-tmp = head;if(head == NULL)
-{
-*val= -1;
-return head;
-}
-if(head->rlink == NULL)
-{
-head = NULL; // deleting last node of the list
-}
-else
-{
-head = head->rlink;
-head->llink = NULL;
-}
-*val = tmp->data;
-freenode(tmp);
-return head;
-}
-NODE ins_r(NODE head, int x)
-{
-NODE tmp,cur;
-cur=head;
-tmp = getnode();
-tmp->data = x;
-tmp->rlink = NULL;
-if(head == NULL)
-{
-tmp->llink = NULL; // inserting first node
-return tmp;
-}
-while(cur->rlink!=NULL)
-{
-cur=cur->rlink;
-}
-cur->rlink = tmp;
-tmp->llink = cur;
-return head;
-}
-NODE del_r(NODE head, int *val)
-{
-NODE tmp,cur;
-tmp = head;
-if(head == NULL)
-{
-*val= -1;
-return head;
-}
-while(tmp->rlink!=NULL){
-tmp = tmp->rlink;
-}
-if(tmp==head)
-head=NULL; // deleting last node
-else
-{
-cur=tmp->llink;
-cur->rlink = NULL;
-}
-*val = tmp->data;
-freenode(tmp);
-return head;
-}
-void disp(NODE head)
-{
-NODE tmp=head;
-if(head == NULL)
-{
-printf("List is empty\n");
-return;
-}
-for(tmp=head;tmp!=NULL;tmp=tmp-> rlink)
-printf("%d ",tmp->data);
-}
-void search(NODE head, int key)
-{
-NODE tmp;
-int c=0;
-if(head == NULL)
-{
-printf("List is empty\n");
-return;
-}
-for(tmp=head;tmp!=NULL;tmp=tmp-> rlink)
-{
-c++;
-if(tmp->data == key)
-{
-printf("Key found at position %d\n",c);
-return;
-}
-}
-printf("Key not found\n");
+
+int main(){
+	int op,item,key;
+	NODE *a;
+	a = NULL;
+	while(1){
+		printf("Enter your choice\n1.Insert to Front\n2. Insert to left of key\n3. Delete key\n4. Display\n5. Exit\n");
+		scanf("%d",&op);
+		switch(op){
+			case 1:
+				printf("Enter the item to insert\n");
+				scanf("%d",&item);
+				a = insertFront(a,item);
+				break;
+			case 2:
+				printf("Enter the key and the item to insert\n");
+				scanf("%d%d",&key,&item);
+				a = insertKey(a,key,item);
+				break;
+			case 3:
+				printf("Enter the key to delete\n");
+				scanf("%d",&key);
+				a = del(a,getlast(a),key);
+				break;
+			case 4:
+				printf("The linked list\n");
+				display(a);
+				break;
+			case 5:
+				return 0;
+		}
+	}
+	return 0;
 }
